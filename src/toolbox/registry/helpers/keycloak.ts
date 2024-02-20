@@ -315,9 +315,7 @@ class KeycloakWrapper {
 			)
 		}
 
-		if (responseOfRole.status === 204) {
-			console.log(`Admin role assigned to user: ${user.username}`)
-		} else {
+		if (responseOfRole.status !== 204) {
 			console.log(`Failed to assign admin role to user: ${user.username}`)
 		}
 	}

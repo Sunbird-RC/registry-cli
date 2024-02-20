@@ -341,6 +341,61 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			})
 		})
 
+
+	
+	// Create default user for admin and issuance portal
+
+	events.emit('registry.create', {
+		status: 'progress',
+		operation: 'configuring-keycloak-portal-user',
+		message: 'Setting up admin User for issuance/admin portal',
+	})
+	if (
+		setupOptions.auxiliaryServicesToBeEnabled.includes(
+			Object.keys(config.auxiliary_services)[7]
+		) ||
+		setupOptions.auxiliaryServicesToBeEnabled.includes(
+			Object.keys(config.auxiliary_services)[6]
+		)
+	) {
+		try {
+			await registry.createAUserInRegistry(
+				'portalAdmin',
+				setupOptions.portalAdminUser
+			)
+			// Fetch the user that we created
+			let user = await keycloak.fetchUserByUserName(
+				setupOptions.portalAdminUser
+			)
+			// give admin role to the User (admin role needs to be assigned for both issuance and admin portal user)
+			const clientId = await keycloak.getInternalClientId(
+				setupOptions.keycloakAdminClientId
+			)
+			await keycloak.assignAdminRoleToUser(user[0], clientId)
+			if (
+				setupOptions.auxiliaryServicesToBeEnabled.includes(
+					Object.keys(config.auxiliary_services)[7]
+				)
+			) {
+				await registry.createDocumentTypeInRegistry()
+			}
+
+			events.emit('registry.create', {
+				status: 'success',
+				operation: 'configuring-keycloak-portal-user',
+				message: 'Successfully created an admin User for issuance/admin portal!',
+			})
+		} catch (errorObject: unknown) {
+			console.log(errorObject)
+			const error = errorObject as Error
+			events.emit('registry.create', {
+				status: 'error',
+				operation: 'configuring-keycloak-portal-user',
+				message: `An unexpected error occurred while creating portal user: ${error.message}`,
+			})
+		}
+	}
+
 	// Check if we need to create scopes in keycloak
 	if (
 		await filesystem.existsAsync(
@@ -383,53 +438,6 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 				status: 'error',
 				operation: 'configuring-keycloak-consent',
 				message: `An unexpected error occurred while setting up the consent provider: ${error.message}`,
-			})
-		}
-	}
-
-	// Create default user for admin and issuance portal
-
-	events.emit('registry.create', {
-		status: 'progress',
-		operation: 'configuring-portal-User',
-		message: 'Setting up Admin User in the Registry ',
-	})
-	if (
-		setupOptions.auxiliaryServicesToBeEnabled.includes(
-			Object.keys(config.auxiliary_services)[7]
-		) ||
-		setupOptions.auxiliaryServicesToBeEnabled.includes(
-			Object.keys(config.auxiliary_services)[6]
-		)
-	) {
-		try {
-			await registry.createAUserInRegistry(
-				'portalAdmin',
-				setupOptions.portalAdminUser
-			)
-			// Fetch the user that we created
-			let user = await keycloak.fetchUserByUserName(
-				setupOptions.portalAdminUser
-			)
-			// give admin role to the User (admin role needs to be assigned for both issuance and admin portal user)
-			const clientId = await keycloak.getInternalClientId(
-				setupOptions.keycloakAdminClientId
-			)
-			await keycloak.assignAdminRoleToUser(user[0], clientId)
-			if (
-				setupOptions.auxiliaryServicesToBeEnabled.includes(
-					Object.keys(config.auxiliary_services)[7]
-				)
-			) {
-				await registry.createDocumentTypeInRegistry()
-			}
-		} catch (errorObject: unknown) {
-			console.log(errorObject)
-			const error = errorObject as Error
-			events.emit('registry.create', {
-				status: 'error',
-				operation: 'configuring-keycloak-portal-user',
-				message: `An unexpected error occurred while creating portal user: ${error.message}`,
 			})
 		}
 	}

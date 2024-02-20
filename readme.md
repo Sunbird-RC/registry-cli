@@ -20,7 +20,7 @@ feature added?
 [Open an issue](https://github.com/sunbird-rc/community/issues/new/choose)!
 
 Want to contribute? Read the
-[contributing](https://github.com/sunbird-rc/sunbird-rc-core/blob/main/tools/cli/contributing.md)
+[contributing](https://github.com/Sunbird-RC/registry-cli/blob/main/contributing.md)
 file to get started!
 
 ## Publish Package

@@ -112,29 +112,29 @@ Docker Compose version 2.0.1
 ### Clone Your Forked Repository
 
 Once you have your installed all of the above tools, fork the repository on
-Github: https://github.com/sunbird-rc/sunbird-rc-core. For instructions on how
+Github: https://github.com/Sunbird-RC/registry-cli. For instructions on how
 to fork a repository, read through
 [this](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
 
 Then, clone the repository on your computer using `git`:
 
 ```sh
-$ git clone git@github.com:<your github username>/sunbird-rc-core.git sunbird-rc/core
+$ git clone git@github.com:<your github username>/registry-cli.git sunbird-rc-registry-cli
 ```
 
-This will create a directory called `sunbird-rc/core`, which contains the
+This will create a directory called `sunbird-rc-registry-cli`, which contains the
 registry as well as the source code to run the CLI. Move into the directory
 which contains the CLI's code by typing the following:
 
 ```sh
-$ cd sunbird-rc/core/tools/cli
+$ cd sunbird-rc-registry-cli
 ```
 
 Then, add the `upstream` remote so you can fetch the latest changes from the
 main repository and merge them into your fork:
 
 ```sh
-$ git remote add upstream git@github.com:sunbird-rc/sunbird-rc-core.git
+$ git remote add upstream git@github.com:sunbird-rc/registry-cli.git
 ```
 
 To merge the latest changes into your fork anytime, run:
@@ -265,7 +265,7 @@ $ git push origin my/branch
 ### Open A Pull Request
 
 From within GitHub, opening a
-[new pull request](https://github.com/sunbird-rc/sunbird-rc-core/compare) will
+[new pull request](https://github.com/sunbird-rc/registry-cli/compare) will
 present you with a template that should be filled out. Remember to mention
 `@gamemaker1` so I can give you feedback as soon as possible!
 
