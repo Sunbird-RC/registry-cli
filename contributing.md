@@ -112,8 +112,8 @@ Docker Compose version 2.0.1
 ### Clone Your Forked Repository
 
 Once you have your installed all of the above tools, fork the repository on
-Github: https://github.com/Sunbird-RC/registry-cli. For instructions on how
-to fork a repository, read through
+Github: https://github.com/Sunbird-RC/registry-cli. For instructions on how to
+fork a repository, read through
 [this](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
 
 Then, clone the repository on your computer using `git`:
@@ -122,8 +122,8 @@ Then, clone the repository on your computer using `git`:
 $ git clone git@github.com:<your github username>/registry-cli.git sunbird-rc-registry-cli
 ```
 
-This will create a directory called `sunbird-rc-registry-cli`, which contains the
-registry as well as the source code to run the CLI. Move into the directory
+This will create a directory called `sunbird-rc-registry-cli`, which contains
+the registry as well as the source code to run the CLI. Move into the directory
 which contains the CLI's code by typing the following:
 
 ```sh

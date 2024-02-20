@@ -358,8 +358,6 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			})
 		})
 
-
-	
 	// Create default user for admin and issuance portal
 
 	events.emit('registry.create', {
@@ -400,7 +398,8 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			events.emit('registry.create', {
 				status: 'success',
 				operation: 'configuring-keycloak-portal-user',
-				message: 'Successfully created an admin User for issuance/admin portal!',
+				message:
+					'Successfully created an admin User for issuance/admin portal!',
 			})
 		} catch (errorObject: unknown) {
 			console.log(errorObject)
