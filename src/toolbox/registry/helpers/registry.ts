@@ -25,7 +25,7 @@ class RegistryWrapper {
 		let retryCount = 0
 		while (retryCount < maxRetries) {
 			try {
-				const response = (await this.httpClient.post(`/api/v1/Issuer`, data, {
+				const response = (await this.httpClient.post(`/api/v1/Issuer/invite`, data, {
 					headers: {
 						'Content-Type': 'application/json',
 						Accept: 'application/json',
@@ -63,7 +63,7 @@ class RegistryWrapper {
 		while (retryCount < maxRetries) {
 			try {
 				const response = (await this.httpClient.post(
-					`/api/v1/DocumentType`,
+					`/api/v1/DocumentType/invite`,
 					data,
 					{
 						headers: {
