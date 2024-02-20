@@ -296,7 +296,7 @@ services:
   nginx:
     image: ghcr.io/sunbird-rc/sunbird-rc-nginx
     ports:
-      - '80:80'
+      - '81:80'
     depends_on:
       registry:
         condition: service_healthy
