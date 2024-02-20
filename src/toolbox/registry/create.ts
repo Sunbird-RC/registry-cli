@@ -177,16 +177,6 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			target: 'config/schemas/teacher.json',
 			props: setupOptions,
 		})
-		template.generate({
-			template: 'config/schemas/Issuer.json',
-			target: 'config/schemas/Issuer.json',
-			props: setupOptions,
-		})
-		template.generate({
-			template: 'config/schemas/DocumentType.json',
-			target: 'config/schemas/DocumentType.json',
-			props: setupOptions,
-		})
 	} else {
 		await filesystem
 			.copyAsync(
@@ -202,6 +192,33 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 				})
 			})
 	}
+
+	if (
+		setupOptions.auxiliaryServicesToBeEnabled.includes(
+			Object.keys(config.auxiliary_services)[7]
+		) ||
+		setupOptions.auxiliaryServicesToBeEnabled.includes(
+			Object.keys(config.auxiliary_services)[6]
+		)
+	) {
+		template.generate({
+			template: 'config/schemas/Issuer.json',
+			target: 'config/schemas/Issuer.json',
+			props: setupOptions,
+		})
+		if (
+			setupOptions.auxiliaryServicesToBeEnabled.includes(
+				Object.keys(config.auxiliary_services)[7]
+			)
+		) {
+			template.generate({
+				template: 'config/schemas/DocumentType.json',
+				target: 'config/schemas/DocumentType.json',
+				props: setupOptions,
+			})
+		}
+	}
+
 	if (setupOptions.pathToConsentConfiguration === 'use-example-config') {
 		template.generate({
 			template: 'config/consent.json',
