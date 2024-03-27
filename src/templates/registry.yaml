@@ -1,3 +1,7 @@
 registry:
   type: sunbird-rc
   name: <%= props.registryName %>
+  DID_ENABLED: <%= props.didEnabled %>
+  SWAGGER_TITLE: Registry_CLI
+  RELEASE_VERSION_V2: <%= props.releaseVersion %>
+

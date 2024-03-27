@@ -40,7 +40,7 @@ services:
       timeout: 5s
       retries: 5
   registry:
-    image: ghcr.io/sunbird-rc/sunbird-rc-core:${RELEASE_VERSION}
+    image: ghcr.io/sunbird-rc/sunbird-rc-core:${RELEASE_VERSION_V2}
     volumes:
       - ./${SCHEMA_DIR-java/registry/src/main/resources/public/_schemas}:/home/sunbirdrc/config/public/_schemas
       - ./${VIEW_DIR-java/registry/src/main/resources/views}:/home/sunbirdrc/config/views/
@@ -63,9 +63,8 @@ services:
       - search_providerName=${SEARCH_PROVIDER_NAME-dev.sunbirdrc.registry.service.NativeSearchService}
       - sunbird_sso_realm=${KEYCLOAK_REALM-sunbird-rc}
       - sunbird_sso_url=${sunbird_sso_url-http://keycloak:8080/auth}
-      - oauth2_resources=
-      - oauth2_resource_uri=${oauth2_resource_uri-http://localhost:8080/auth/realms/sunbird-rc}
-      - oauth2_resource_roles_path=${oauth2_resource_roles_path-realm_access.roles}
+      - OAUTH2_RESOURCES_0_URI=${oauth2_resource_uri-http://localhost:8080/auth/realms/sunbird-rc}
+      - OAUTH2_RESOURCES_0_PROPERTIES_ROLES_PATH=${oauth2_resource_roles_path-realm_access.roles}
       - identity_provider=${identity_provider-dev.sunbirdrc.auth.keycloak.KeycloakProviderImpl}
       - idgen_enabled=${IDGEN_ENABLED-false}
       - idgen_health_check_url=http://id-gen-service:8088/egov-idgen/health
@@ -76,7 +75,27 @@ services:
       - sunbird_sso_admin_client_secret=${KEYCLOAK_SECRET}
       - claims_enabled=${CLAIMS_ENABLED-false}
       - claims_url=http://claim-ms:8082
+      - did_enabled=${DID_ENABLED-false}
+      - did_health_check_url=http://identity:3332/health
+      - did_generate_url=http://identity:3332/did/generate
+      - did_resolve_url=http://identity:3332/did/resolve/{id}
       - signature_enabled=${SIGNATURE_ENABLED-false}
+      - signature_provider=${SIGNATURE_PROVIDER-dev.sunbirdrc.registry.service.impl.SignatureV2ServiceImpl}
+      - signature_v2_credential_did_method=rcw
+      - signature_v2_issuer_did_method=issuer
+      - signature_v2_schema_author=Registry
+      - signature_v2_schema_author_did_method=author
+      - signature_v2_health_check_url=http://credential:3000/health
+      - signature_v2_issue_url=http://credential:3000/credentials/issue
+      - signature_v2_get_url=http://credential:3000/credentials/{id}
+      - signature_v2_delete_url=http://credential:3000/credentials/{id}
+      - signature_v2_verify_url=http://credential:3000/credentials/{id}/verify
+      - signature_v2_revocation_list_url=http://credential:3000/credentials/revocation-list?issuerId={issuerDid}&page={page}&limit={limit}
+      - signature_v2_schema_health_check_url=http://credential-schema:3333/health
+      - signature_v2_schema_create_url=http://credential-schema:3333/credential-schema
+      - signature_v2_schema_update_url=http://credential-schema:3333/credential-schema/{id}/{version}
+      - signature_v2_schema_get_by_id_and_version_url=http://credential-schema:3333/credential-schema/{id}/{version}
+      - signature_v2_schema_search_by_tags_url=http://credential-schema:3333/credential-schema?tags={tags}
       - sign_url=http://certificate-signer:8079/sign
       - verify_url=http://certificate-signer:8079/verify
       - sign_health_check_url=http://certificate-signer:8079/health
@@ -92,7 +111,7 @@ services:
       - filestorage_bucket_key=issuance
       - registry_base_apis_enable=false
       - sunbird_keycloak_user_password=abcd@123
-      - logging.level.root=INFO
+      - logging.level.root=DEBUG
       - enable_external_templates=true
       - async_enabled=${ASYNC_ENABLED-false}
       - authentication_enabled=${AUTHENTICATION_ENABLED-true}
@@ -103,6 +122,7 @@ services:
       - redis_port=6379
       - manager_type=${MANAGER_TYPE-DefinitionsManager}
       - expand_reference=${EXPAND_REFERENCE-false}
+      - swagger_title=${SWAGGER_TITLE-Sunbird Registry and Credential}
       - notification_async_enabled=${NOTIFICATION_ASYNC_ENABLED-false}
       - notification_enabled=${NOTIFICATION_ENABLED-false}
       - notification_url=${NOTIFICATION_URL-http://notification-ms:8765/notification-service/v1/notification}
@@ -172,6 +192,99 @@ services:
       interval: 30s
       timeout: 10s
       retries: 10
+  vault:
+    image: vault:1.13.3
+    restart: always
+    volumes:
+      - ./vault.json:/vault/config/vault.json
+      - ./vault-data:/vault/file
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_API_ADDR=${VAULT_API_ADDR}
+      - VAULT_ADDRESS=${VAULT_ADDRESS}
+    cap_add:
+      - IPC_LOCK
+    command: vault server -config=/vault/config/vault.json
+    ports:
+      - 8200:8200
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --spider http://127.0.0.1:8200/v1/sys/health || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  identity:
+    image: ghcr.io/sunbird-rc/sunbird-rc-identity-service:${RELEASE_VERSION_V2}
+    ports:
+      - "3332:3332"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/registry
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - VAULT_BASE_URL=${VAULT_BASE_URL}
+      - VAULT_ROOT_PATH=${VAULT_ROOT_PATH}
+      - VAULT_TIMEOUT=${VAULT_TIMEOUT}
+      - VAULT_PROXY=${VAULT_PROXY}
+      - SIGNING_ALGORITHM=${SIGNING_ALGORITHM}
+      - JWKS_URI=${JWKS_URI}
+      - ENABLE_AUTH=${ENABLE_AUTH}
+      - WEB_DID_BASE_URL=${WEB_DID_BASE_URL}
+    healthcheck:
+      test:
+        [ "CMD-SHELL", "curl -f http://localhost:3332/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  credential-schema:
+    image: ghcr.io/sunbird-rc/sunbird-rc-credential-schema:${RELEASE_VERSION_V2}
+    ports:
+      - "3333:3333"
+    depends_on:
+      db:
+        condition: service_healthy
+      identity:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/registry
+      - IDENTITY_BASE_URL=${IDENTITY_BASE_URL}
+      - JWKS_URI=${JWKS_URI}
+      - ENABLE_AUTH=${ENABLE_AUTH}
+    healthcheck:
+      test:
+        [ "CMD-SHELL", "curl -f http://localhost:3333/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  credential:
+    image: ghcr.io/sunbird-rc/sunbird-rc-credentials-service:${RELEASE_VERSION_V2}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      identity:
+        condition: service_healthy
+      credential-schema:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/registry
+      - IDENTITY_BASE_URL=${IDENTITY_BASE_URL}
+      - SCHEMA_BASE_URL=${SCHEMA_BASE_URL}
+      - CREDENTIAL_SERVICE_BASE_URL=${CREDENTIAL_SERVICE_BASE_URL}
+      - JWKS_URI=${JWKS_URI}
+      - ENABLE_AUTH=${ENABLE_AUTH}
+    healthcheck:
+      test:
+        [ "CMD-SHELL", "curl -f http://localhost:3000/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   certificate-signer:
     image: ghcr.io/sunbird-rc/sunbird-rc-certificate-signer:${RELEASE_VERSION}
     environment:
@@ -372,9 +485,9 @@ services:
       - '8088:8088'
     environment:
       spring.datasource.url: jdbc:postgresql://db:5432/registry
-      spring.flyway.baseline-on-migrate: 'true'
-      autocreate.new.seq: 'true'
-      idformat.from.mdms: 'false'
+      spring.flyway.baseline-on-migrate: "true"
+      autocreate.new.seq: "true"
+      idformat.from.mdms: "false"
       egov.mdms.provider: org.egov.id.masterdata.provider.DBMasterDataProvider
     depends_on:
       db:
@@ -389,7 +502,7 @@ services:
       spring.datasource.url: jdbc:postgresql://db:5432/registry
       spring.flyway.url: jdbc:postgresql://db:5432/registry
       egov.mdms.provider: org.egov.enc.masterdata.provider.DBMasterDataProvider
-      spring.flyway.baseline-on-migrate: 'true'
+      spring.flyway.baseline-on-migrate: "true"
       management.endpoints.web.base-path: /
     depends_on:
       db:
