@@ -65,7 +65,7 @@ Run `node --version` in the terminal if NodeJS has been installed correctly:
 
 ```sh
 $ node --version
-v16.13.0
+v16.20.2
 ```
 
 #### PNPM
@@ -80,7 +80,7 @@ Run `pnpm --version` in the terminal if PNPM has been installed correctly:
 
 ```sh
 $ pnpm --version
-6.20.1
+8.15.4
 ```
 
 #### Docker
