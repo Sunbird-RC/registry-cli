@@ -23,7 +23,7 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	const registry = new RegistryWrapper()
 
 	// check for registry version
-	let registryVersion  = setupOptions.version;
+	let registryVersion = setupOptions.version
 
 	let enableTheseServices = [
 		config.docker_service_name.DB,
@@ -32,21 +32,22 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	]
 
 	// By default set it for v1.0.0
-	setupOptions['signatureProvideName'] = config.DEFAULT_V1_SIGNATURE_PROVIDER_NAME;
+	setupOptions['signatureProvideName'] =
+		config.DEFAULT_V1_SIGNATURE_PROVIDER_NAME
 	setupOptions['releaseVersion'] = Object.values(config.versions)[1]
-	setupOptions['oauthResourceURI'] =  config.DEFAULT_V2_OAUTH_RESOURCE_URI;
+	setupOptions['oauthResourceURI'] = config.DEFAULT_V2_OAUTH_RESOURCE_URI
 
 	// if registry is v2.0.0
 	if (registryVersion === Object.keys(config.versions)[1]) {
-
-		setupOptions['signatureProvideName'] = config.DEFAULT_V2_SIGNATURE_PROVIDER_NAME;
+		setupOptions['signatureProvideName'] =
+			config.DEFAULT_V2_SIGNATURE_PROVIDER_NAME
 		setupOptions.didEnabled = true
 		enableTheseServices.push(
-			config.docker_service_name.CREDENTIAL_SERVICE , 
+			config.docker_service_name.CREDENTIAL_SERVICE,
 			config.docker_service_name.CREDENTIAL_SCHEMA_SERVICE,
-			config.docker_service_name.IDENTITY_SERVICE,
+			config.docker_service_name.IDENTITY_SERVICE
 		)
-	} 
+	}
 
 	setupOptions.fileStorageEnabled = false
 
@@ -76,7 +77,10 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	}
 
 	//Enable Certificate Signer service
-	if (setupOptions?.signatureEnabled && registryVersion === Object.keys(config.versions)[0]) {
+	if (
+		setupOptions?.signatureEnabled &&
+		registryVersion === Object.keys(config.versions)[0]
+	) {
 		enableTheseServices.push(
 			config.docker_service_name.CERTIFICATE_SIGHNER,
 			config.docker_service_name.FILE_STORAGE
@@ -156,7 +160,7 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		target: '.env-cli',
 		props: setupOptions,
 	})
-	if (registryVersion === Object.keys(config.versions)[1]) { 
+	if (registryVersion === Object.keys(config.versions)[1]) {
 		template.generate({
 			template: 'setup_vault.sh',
 			target: 'setup_vault.sh',
@@ -236,7 +240,7 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			Object.keys(config.auxiliary_services)[6]
 		)
 	) {
-		setupOptions['oauthResourceURI'] =  config.DEFAULT_V1_OAUTH_RESOURCE_URI;
+		setupOptions['oauthResourceURI'] = config.DEFAULT_V1_OAUTH_RESOURCE_URI
 		template.generate({
 			template: 'config/schemas/v1/Issuer.json',
 			target: 'config/schemas/Issuer.json',
@@ -281,7 +285,10 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	if (setupOptions?.autoGenerateKeys) {
 		// Specify the path to the config.json file
 		const configFilePath = 'imports/config.json'
-		let deafultTemplateForKeys = await filesystem.read(path.resolve(process.cwd(), configFilePath), "json")
+		let deafultTemplateForKeys = await filesystem.read(
+			path.resolve(process.cwd(), configFilePath),
+			'json'
+		)
 		var pair = keypair()
 		deafultTemplateForKeys.issuers.default.publicKey = formatKey(
 			pair.public,
@@ -315,27 +322,24 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	if (registryVersion === Object.keys(config.versions)[1]) {
 		// Start Vault Service
 		// Vault Command
-		let vaultcommand = config.vaultCommand;
+		let vaultcommand = config.vaultCommand
 		events.emit('registry.create', {
 			status: 'progress',
 			operation: 'setting-up-vault-service',
 			message: 'Setting up vault service',
 		})
-		await system
-			.exec(vaultcommand)
-			.catch((error: Error) => {
-				events.emit('registry.create', {
-					status: 'error',
-					operation: 'setting-up-vault-service',
-					message: `An unexpected error occurred while setting up vault: ${error.message}`,
-				})
+		await system.exec(vaultcommand).catch((error: Error) => {
+			events.emit('registry.create', {
+				status: 'error',
+				operation: 'setting-up-vault-service',
+				message: `An unexpected error occurred while setting up vault: ${error.message}`,
+			})
 		})
 		events.emit('registry.create', {
 			status: 'success',
 			operation: 'setting-up-vault-service',
 			message: 'Successfully setup vault as Keystore manager!',
 		})
-
 	}
 
 	// Start containers

@@ -28,17 +28,21 @@ export default {
 			handleEvent,
 		} = toolbox
 
-		let lenghtOfAuxilaryServices : number = Object.keys(config.auxiliary_services).length ;
+		let lenghtOfAuxilaryServices: number = Object.keys(
+			config.auxiliary_services
+		).length
 		// Function to print a URL Hyper Link
-		let printURL = (url: string, linkText: string ) => {
+		let printURL = (url: string, linkText: string) => {
 			// ANSI escape codes to format the link
 			const formattedLink = `\u001b]8;;${url}\u0007${linkText}\u001b]8;;\u0007`
-			return print.info(print.colors.green.bold(`Ctrl click here --> ${formattedLink}.`));
-		} 
+			return print.info(
+				print.colors.green.bold(`Ctrl click here --> ${formattedLink}.`)
+			)
+		}
 
-		// Funtion to print a Higlight 
-		let printHighlight = (message : string ) => {
-			print.highlight(message); 
+		// Funtion to print a Higlight
+		let printHighlight = (message: string) => {
+			print.highlight(message)
 		}
 
 		events.on('environment.check', handleEvent)
@@ -63,12 +67,12 @@ export default {
 			})
 		}
 
-		// v1.0.0 details 
+		// v1.0.0 details
 		// print.info('')
 		// print.info(print.colors.magenta.bold('v1.0.0') + print.colors.cyan.italic('If you are here to use the reference solutions for digital credentialing, such as the administration or issuance portal, we recommend proceeding with version v1.0.0.'));
 		// print.info('')
 
-		// // v2.0.0 details 
+		// // v2.0.0 details
 		// print.info('')
 		// print.info(print.colors.magenta.bold('v2.0.0'))
 		// print.info('')
@@ -79,16 +83,14 @@ export default {
 				message:
 					print.colors.reset(
 						'Please specify which version of the registry you would like to use?'
-					) 
-					+
+					) +
 					print.colors.yellow(
 						` - If you are here to use the reference solutions for digital credentialing, such as the administration or issuance portal, we recommend proceeding with version v1.0.0. Else use the latest release  v2.0.0`
-					)
-					,
+					),
 				name: 'version',
 				choices: Object.keys(config.versions),
 			},
-		]); 
+		])
 
 		// Get neccesary information
 		print.info('')
@@ -198,11 +200,13 @@ export default {
 				choices: Object.keys(config.definationMangerTypes),
 			},
 		]
-		if (optionsForVersionSelection?.version === Object.keys(config.versions)[1]) {
-			promptOptions.splice(10,1);
+		if (
+			optionsForVersionSelection?.version === Object.keys(config.versions)[1]
+		) {
+			promptOptions.splice(10, 1)
 		}
 
-		const options = await prompt.ask(promptOptions);
+		const options = await prompt.ask(promptOptions)
 
 		let autoGenerateKeyOptions = {}
 		let signatureOptions: SignatureOptions = {
@@ -233,7 +237,10 @@ export default {
 
 		// This is specific to v1.0.0 of registry
 		// Check for auto generation of keys if signature service is enabled
-		if (signatureOptions?.signatureEnabled && optionsForVersionSelection?.version === Object.keys(config.versions)[0]) {
+		if (
+			signatureOptions?.signatureEnabled &&
+			optionsForVersionSelection?.version === Object.keys(config.versions)[0]
+		) {
 			autoGenerateKeyOptions = await prompt.ask([
 				{
 					type: 'confirm',
@@ -272,7 +279,7 @@ export default {
 		const linkText =
 			'for more details about Sunbird RC configurations and its axuiliary services under the Developer Documentation'
 		print.info('')
-		printURL(url, linkText);
+		printURL(url, linkText)
 
 		// Checks for auxiliary services if needed
 		auxiliaryServices = await prompt.ask([
@@ -283,10 +290,15 @@ export default {
 					print.colors.highlight(
 						'Sunbird RC offers a variety of auxiliary services to improve platform functionality.'
 					) + print.colors.magenta('- Use SPACE BAR to select and unselect.'),
-				choices: optionsForVersionSelection?.version === Object.keys(config.versions)[0] ? 
-					Object.keys(  config.auxiliary_services ): 
-					//edit the count if you are adding any new auxilary services
-					Object.keys(  config.auxiliary_services).splice(0, lenghtOfAuxilaryServices -2),
+				choices:
+					optionsForVersionSelection?.version ===
+					Object.keys(config.versions)[0]
+						? Object.keys(config.auxiliary_services)
+						: //edit the count if you are adding any new auxilary services
+						  Object.keys(config.auxiliary_services).splice(
+								0,
+								lenghtOfAuxilaryServices - 2
+						  ),
 			},
 		])
 
@@ -297,13 +309,13 @@ export default {
 			portalAdminUser: '',
 		}
 		if (
-			optionsForVersionSelection?.version === Object.keys(config.versions)[0] && 
+			optionsForVersionSelection?.version === Object.keys(config.versions)[0] &&
 			(auxiliaryServices.auxiliaryServicesToBeEnabled.includes(
 				Object.keys(config.auxiliary_services)[7]
 			) ||
-			auxiliaryServices.auxiliaryServicesToBeEnabled.includes(
-				Object.keys(config.auxiliary_services)[6]
-			))
+				auxiliaryServices.auxiliaryServicesToBeEnabled.includes(
+					Object.keys(config.auxiliary_services)[6]
+				))
 		) {
 			portalUserCredOptions = await prompt.ask([
 				{
@@ -332,13 +344,13 @@ export default {
 
 		print.info('')
 		if (
-			optionsForVersionSelection?.version === Object.keys(config.versions)[0] && 
+			optionsForVersionSelection?.version === Object.keys(config.versions)[0] &&
 			(auxiliaryServices.auxiliaryServicesToBeEnabled.includes(
 				Object.keys(config.auxiliary_services)[7]
 			) ||
-			auxiliaryServices.auxiliaryServicesToBeEnabled.includes(
-				Object.keys(config.auxiliary_services)[6]
-			))
+				auxiliaryServices.auxiliaryServicesToBeEnabled.includes(
+					Object.keys(config.auxiliary_services)[6]
+				))
 		) {
 			let message = `You can use ${optionsToCheck.portalAdminUser} as your Username to login to the portal/portal with the default password ( abcd@123 ). You can reset it by loging into keycloak `
 			print.success(message)
@@ -346,15 +358,23 @@ export default {
 		print.info('')
 
 		print.info('')
-		if ( optionsForVersionSelection?.version === Object.keys(config.versions)[0]) {
-			if (  options?.autoGenerateKeys) {
-				printHighlight('Sunbird-RC is configured with auto generated keys for signing.')
+		if (
+			optionsForVersionSelection?.version === Object.keys(config.versions)[0]
+		) {
+			if (options?.autoGenerateKeys) {
+				printHighlight(
+					'Sunbird-RC is configured with auto generated keys for signing.'
+				)
 			} else {
-				printHighlight('Sunbird-RC is configured with test/default keys for signing. It is required to be updated `imports/config.json` before going live/production')
+				printHighlight(
+					'Sunbird-RC is configured with test/default keys for signing. It is required to be updated `imports/config.json` before going live/production'
+				)
 			}
 		} else {
-			printHighlight('Sunbird-RC is using HashCorp Vault as the keystore manager. For more information you can refer below')
-			printURL('https://www.hashicorp.com/products/vault', "HashiCorp Vault")
+			printHighlight(
+				'Sunbird-RC is using HashCorp Vault as the keystore manager. For more information you can refer below'
+			)
+			printURL('https://www.hashicorp.com/products/vault', 'HashiCorp Vault')
 		}
 	},
 }

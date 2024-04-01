@@ -34,7 +34,11 @@ export default async (toolbox: Toolbox, soft: boolean) => {
 		rawJson = jsonArray
 	}
 
-	let activeContainer = rawJson.map((i: GitRawJson) => ( i.Service !== config.docker_service_name.VAULT) ? i.Service : "").join(' ')
+	let activeContainer = rawJson
+		.map((i: GitRawJson) =>
+			i.Service !== config.docker_service_name.VAULT ? i.Service : ''
+		)
+		.join(' ')
 
 	let restartComamnd =
 		'docker compose up --force-recreate -d ' + activeContainer
