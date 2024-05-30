@@ -279,6 +279,7 @@ services:
       - CREDENTIAL_SERVICE_BASE_URL=${CREDENTIAL_SERVICE_BASE_URL}
       - JWKS_URI=${JWKS_URI}
       - ENABLE_AUTH=${ENABLE_AUTH}
+      - QR_TYPE=${QR_TYPE}
     healthcheck:
       test: ['CMD-SHELL', 'curl -f http://localhost:3000/health || exit 1']
       interval: 10s
@@ -302,6 +303,7 @@ services:
     image: ghcr.io/sunbird-rc/sunbird-rc-certificate-api:${RELEASE_VERSION}
     environment:
       - PORT=8078
+      - QR_TYPE={QR_TYPE}
     ports:
       - '8078:8078'
     healthcheck:
@@ -519,7 +521,7 @@ services:
       keycloak:
         condition: service_healthy
   issuance-portal:
-    image: ghcr.io/sunbird-rc/sunbird-rc-issuance-portal:${ISSUANCE_RELEASE_VERSION-latest}
+    image: ghcr.io/sunbird-rc/sunbird-rc-issuance-portal:${ISSUANCE_RELEASE_VERSION-main}
     ports:
       - '8086:8086'
     volumes:

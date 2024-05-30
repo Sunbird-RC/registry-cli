@@ -73,6 +73,7 @@ export interface RegistrySetupOptions {
 	encyptionEnabled: false | boolean
 	idGenEnabled: false | boolean
 	enableVCIssuance: boolean
+	qr_type: string
 	asyncEnabled: boolean
 	managerType: string
 	searchProvideName:
@@ -145,6 +146,10 @@ export interface Auxiliary_Services {
 
 export interface PortalAdminUser {
 	portalAdminUser: String
+}
+
+export interface qr_type {
+	qr_type: String
 }
 
 export interface GitRawJson {

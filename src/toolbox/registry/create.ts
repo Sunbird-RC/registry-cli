@@ -5,7 +5,7 @@ import path from 'path'
 
 import KeycloakWrapper from './helpers/keycloak'
 import { allUp } from './status'
-import { config } from '../../config/config'
+import { config, qr_types } from '../../config/config'
 var keypair = require('keypair')
 
 import { RegistrySetupOptions, Toolbox } from '../../types'
@@ -30,6 +30,18 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		config.docker_service_name.REGISTRY,
 		config.docker_service_name.KEYCLOAK,
 	]
+
+
+
+	// enable VC Issuance
+	if (setupOptions?.enableVCIssuance ) {
+		if (registryVersion === Object.keys(config.versions)[0]) {
+			enableTheseServices.push(
+				config.docker_service_name.CERTIFICATE_API,
+			)
+		} 
+		setupOptions.signatureEnabled = true 
+	} 
 
 	// By default set it for v1.0.0
 	setupOptions['signatureProvideName'] =
@@ -92,6 +104,7 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	)) {
 		setupOptions.idGenEnabled = true
 	} else setupOptions.idGenEnabled = false
+
 	//Enable Certificate Signer service
 	if (
 		setupOptions?.signatureEnabled &&
@@ -119,13 +132,12 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		enableTheseServices.push(config.docker_service_name.KAFKA)
 	}
 
-	// enable certificate API service
-	if (setupOptions?.enableVCIssuance && registryVersion === Object.keys(config.versions)[0]) {
-		enableTheseServices.push(
-			config.docker_service_name.CERTIFICATE_API,
-			config.docker_service_name.FILE_STORAGE
-		)
-		setupOptions.fileStorageEnabled = true
+	if(!setupOptions?.qr_type) {
+		if (registryVersion === Object.keys(config.versions)[1]) {
+			setupOptions.qr_type = qr_types["W3C_VC"]
+		} else {
+            setupOptions.qr_type = qr_types["W3C-VC"]
+		}
 	} 
 
 	// enable Auxiliary services

@@ -38,8 +38,12 @@ export interface Config {
 	versions: VersionManager
 	maximumRetries: number
 	vaultCommand: string
+	qr_types: QR_TYPES
 }
 
+interface QR_TYPES {
+	[name: string] : string
+}
 interface SignatureProvider {
 	[name: string]: string
 }
@@ -77,6 +81,12 @@ const versionsAvailable: VersionManager = {
 const definationsManagers = {
 	'Definitions Manager': 'DefinitionsManager',
 	'Distributed Definitions Manager': 'DistributedDefinitionsManager',
+}
+
+export const qr_types: QR_TYPES = {
+	"W3C-VC" : "W3C-VC",
+	"W3C_VC" : "W3C_VC",
+	"URL": "URL"
 }
 
 export let config: Config = {
@@ -122,4 +132,5 @@ export let config: Config = {
 	versions: versionsAvailable,
 	maximumRetries: 100,
 	vaultCommand: 'bash setup_vault.sh docker-compose.yml vault',
+	qr_types : qr_types
 }
