@@ -36,10 +36,11 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		config.DEFAULT_V1_SIGNATURE_PROVIDER_NAME
 	setupOptions['releaseVersion'] = Object.values(config.versions)[1]
 	setupOptions['oauthResourceURI'] = config.DEFAULT_V2_OAUTH_RESOURCE_URI
+	setupOptions.didEnabled = false
 
 
 	// if registry is v2.0.0
-	if (registryVersion === Object.keys(config.versions)[1]) {
+	if (registryVersion === Object.keys(config.versions)[1] && setupOptions.signatureEnabled === true ) {
 		setupOptions['signatureProvideName'] =
 			config.DEFAULT_V2_SIGNATURE_PROVIDER_NAME
 		setupOptions.didEnabled = true
@@ -48,6 +49,7 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			config.docker_service_name.CREDENTIAL_SCHEMA_SERVICE,
 			config.docker_service_name.IDENTITY_SERVICE
 		)
+		setupOptions.enableVCIssuance = true
 	}
 
 	setupOptions.fileStorageEnabled = false
@@ -118,13 +120,13 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	}
 
 	// enable certificate API service
-	if (setupOptions?.enableVCIssuance) {
+	if (setupOptions?.enableVCIssuance && registryVersion === Object.keys(config.versions)[0]) {
 		enableTheseServices.push(
 			config.docker_service_name.CERTIFICATE_API,
 			config.docker_service_name.FILE_STORAGE
 		)
 		setupOptions.fileStorageEnabled = true
-	}
+	} 
 
 	// enable Auxiliary services
 	if (setupOptions?.auxiliaryServicesToBeEnabled.length > 0) {
@@ -230,6 +232,18 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			target: 'config/schemas/teacher.json',
 			props: setupOptions,
 		})
+		if (registryVersion === Object.keys(config.versions)[1]) { 
+			template.generate({
+				template: 'config/schemas/v2/Insurance.json',
+				target: 'config/schemas/Insurance.json',
+				props: setupOptions,
+			})
+			template.generate({
+				template: 'config/schemas/v2/Official.json',
+				target: 'config/schemas/Official.json',
+				props: setupOptions,
+			})
+		}
 	} else {
 		await filesystem
 			.copyAsync(
@@ -333,7 +347,7 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		message: 'Successfully copied over necessary files',
 	})
 
-	if (registryVersion === Object.keys(config.versions)[1]) {
+	if (registryVersion === Object.keys(config.versions)[1] && setupOptions.signatureEnabled === true) {
 		// Start Vault Service
 		// Vault Command
 		let vaultcommand = config.vaultCommand
