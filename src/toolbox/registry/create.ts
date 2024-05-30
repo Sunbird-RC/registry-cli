@@ -37,6 +37,7 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	setupOptions['releaseVersion'] = Object.values(config.versions)[1]
 	setupOptions['oauthResourceURI'] = config.DEFAULT_V2_OAUTH_RESOURCE_URI
 
+
 	// if registry is v2.0.0
 	if (registryVersion === Object.keys(config.versions)[1]) {
 		setupOptions['signatureProvideName'] =
@@ -81,14 +82,14 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		Object.keys(config.auxiliary_services)[8]
 	)) {
 		setupOptions.encyptionEnabled = true
-	}
+	} else setupOptions.encyptionEnabled =false
 
 	// Enable Id-Gen Service 
 	if (setupOptions.auxiliaryServicesToBeEnabled.includes(
 		Object.keys(config.auxiliary_services)[9]
 	)) {
 		setupOptions.idGenEnabled = true
-	}
+	} else setupOptions.idGenEnabled = false
 	//Enable Certificate Signer service
 	if (
 		setupOptions?.signatureEnabled &&
