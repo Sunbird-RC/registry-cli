@@ -297,8 +297,11 @@ export default {
 						: //edit the count if you are adding any new auxilary services
 						  Object.keys(config.auxiliary_services).splice(
 								0,
-								lenghtOfAuxilaryServices - 2
-						  ),
+								6
+						  ).concat(Object.keys(config.auxiliary_services).splice(
+							8,
+							2
+					  )),
 			},
 		])
 

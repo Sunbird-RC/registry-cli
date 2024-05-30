@@ -64,6 +64,8 @@ const auxiliary_services: AuxiliaryServices = {
 	'Digilocker Certificate Service': 'digilocker-certificate-api',
 	'Admin Portal': 'admin-portal',
 	'Issuance Portal': 'issuance-portal',
+	"Encryption Service": "encryption-service",
+	"Unique ID-Generation Service" : "id-gen-service"
 }
 
 // change the verions of the registries based on the release

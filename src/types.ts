@@ -70,6 +70,8 @@ export interface RegistrySetupOptions {
 	pathToConsentConfiguration: 'use-example-config' | string
 	enableRegistryAuthentication: boolean
 	elasticSearchEnabled: boolean
+	encyptionEnabled: boolean
+	idGenEnabled: boolean
 	enableVCIssuance: boolean
 	asyncEnabled: boolean
 	managerType: string

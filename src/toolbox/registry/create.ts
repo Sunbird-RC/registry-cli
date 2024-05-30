@@ -76,6 +76,19 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		setupOptions.enableVCIssuance = true
 	}
 
+	// Enable Encryption Service 
+	if (setupOptions.auxiliaryServicesToBeEnabled.includes(
+		Object.keys(config.auxiliary_services)[8]
+	)) {
+		setupOptions.encyptionEnabled = true
+	}
+
+	// Enable Id-Gen Service 
+	if (setupOptions.auxiliaryServicesToBeEnabled.includes(
+		Object.keys(config.auxiliary_services)[9]
+	)) {
+		setupOptions.idGenEnabled = true
+	}
 	//Enable Certificate Signer service
 	if (
 		setupOptions?.signatureEnabled &&
