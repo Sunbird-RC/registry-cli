@@ -46,22 +46,28 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	// By default set it for v1.0.0
 	setupOptions['signatureProvideName'] =
 		config.DEFAULT_V1_SIGNATURE_PROVIDER_NAME
-	setupOptions['releaseVersion'] = Object.values(config.versions)[1]
-	setupOptions['oauthResourceURI'] = config.DEFAULT_V2_OAUTH_RESOURCE_URI
+	setupOptions['releaseVersion'] = Object.values(config.versions)[0]
+	setupOptions['oauthResourceURI'] = config.DEFAULT_V1_OAUTH_RESOURCE_URI
 	setupOptions.didEnabled = false
 
 
 	// if registry is v2.0.0
-	if (registryVersion === Object.keys(config.versions)[1] && setupOptions.signatureEnabled === true ) {
+	if (registryVersion === Object.keys(config.versions)[1] ) {
+		setupOptions['releaseVersion'] = Object.values(config.versions)[1]
+		setupOptions['oauthResourceURI'] = config.DEFAULT_V2_OAUTH_RESOURCE_URI
 		setupOptions['signatureProvideName'] =
 			config.DEFAULT_V2_SIGNATURE_PROVIDER_NAME
-		setupOptions.didEnabled = true
-		enableTheseServices.push(
-			config.docker_service_name.CREDENTIAL_SERVICE,
-			config.docker_service_name.CREDENTIAL_SCHEMA_SERVICE,
-			config.docker_service_name.IDENTITY_SERVICE
-		)
-		setupOptions.enableVCIssuance = true
+			setupOptions.enableVCIssuance = false
+		if ( setupOptions.signatureEnabled === true) {
+			
+			setupOptions.didEnabled = true
+			enableTheseServices.push(
+				config.docker_service_name.CREDENTIAL_SERVICE,
+				config.docker_service_name.CREDENTIAL_SCHEMA_SERVICE,
+				config.docker_service_name.IDENTITY_SERVICE
+			)
+			setupOptions.enableVCIssuance = true
+		}
 	}
 
 	setupOptions.fileStorageEnabled = false

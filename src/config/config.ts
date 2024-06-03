@@ -99,7 +99,7 @@ export let config: Config = {
 	DEFAULT_V2_SIGNATURE_PROVIDER_NAME:
 		'dev.sunbirdrc.registry.service.impl.SignatureV2ServiceImpl',
 	DEFAULT_V2_OAUTH_RESOURCE_URI: 'http://keycloak:8080/auth/realms/sunbird-rc',
-	DEFAULT_V1_OAUTH_RESOURCE_URI: 'http://localhost:8080/auth/realms/sunbird-rc',
+	DEFAULT_V1_OAUTH_RESOURCE_URI: 'http://keycloak:8080/auth/realms/sunbird-rc',
 	docker_service_name: {
 		ES: 'es',
 		DB: 'db',
