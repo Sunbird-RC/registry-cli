@@ -42,7 +42,7 @@ export interface Config {
 }
 
 interface QR_TYPES {
-	[name: string] : string
+	[name: string]: string
 }
 interface SignatureProvider {
 	[name: string]: string
@@ -68,8 +68,8 @@ const auxiliary_services: AuxiliaryServices = {
 	'Digilocker Certificate Service': 'digilocker-certificate-api',
 	'Admin Portal': 'admin-portal',
 	'Issuance Portal': 'issuance-portal',
-	"Encryption Service": "encryption-service",
-	"Unique ID-Generation Service" : "id-gen-service"
+	'Encryption Service': 'encryption-service',
+	'Unique ID-Generation Service': 'id-gen-service',
 }
 
 // change the verions of the registries based on the release
@@ -84,9 +84,9 @@ const definationsManagers = {
 }
 
 export const qr_types: QR_TYPES = {
-	"W3C-VC" : "W3C-VC",
-	"W3C_VC" : "W3C_VC",
-	"URL": "URL"
+	'W3C-VC': 'W3C-VC',
+	W3C_VC: 'W3C_VC',
+	URL: 'URL',
 }
 
 export let config: Config = {
@@ -132,5 +132,5 @@ export let config: Config = {
 	versions: versionsAvailable,
 	maximumRetries: 100,
 	vaultCommand: 'bash setup_vault.sh docker-compose.yml vault',
-	qr_types : qr_types
+	qr_types: qr_types,
 }

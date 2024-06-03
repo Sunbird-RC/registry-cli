@@ -254,35 +254,31 @@ export default {
 			])
 		}
 
-		// Check for QR_TYPE if VC Issuance is enabled 
+		// Check for QR_TYPE if VC Issuance is enabled
 		let qr_type_options = {}
-		let qrOptions = Object.keys(config.qr_types);
-		if (optionsForVersionSelection?.version === Object.keys(config.versions)[0]) {
-			qrOptions.splice(1,1)
+		let qrOptions = Object.keys(config.qr_types)
+		if (
+			optionsForVersionSelection?.version === Object.keys(config.versions)[0]
+		) {
+			qrOptions.splice(1, 1)
 		} else {
-			qrOptions.splice(0,1)
+			qrOptions.splice(0, 1)
 		}
 		if (signatureOptions.signatureEnabled || options.enableVCIssuance) {
-			qr_type_options = await prompt.ask(
-				[
-					{
-						type: 'select',
-						message:
-							print.colors.reset(
-								'Please specify the type of QR code you would like to generate ?'
-							) +
-							print.colors.yellow(
-								`Types of QR codes that sunbird supports: `
-							) + print.colors.dim(
-								'1. W3C-VC'
-							) + print.colors.dim(
-								' 2. URL '
-							),
-						name: 'qr_type',
-						choices: qrOptions,
-					},
-				]
-			)
+			qr_type_options = await prompt.ask([
+				{
+					type: 'select',
+					message:
+						print.colors.reset(
+							'Please specify the type of QR code you would like to generate ?'
+						) +
+						print.colors.yellow(`Types of QR codes that sunbird supports: `) +
+						print.colors.dim('1. W3C-VC') +
+						print.colors.dim(' 2. URL '),
+					name: 'qr_type',
+					choices: qrOptions,
+				},
+			])
 		}
 
 		// Checks for import directories for schemas and consent module
@@ -326,13 +322,9 @@ export default {
 					Object.keys(config.versions)[0]
 						? Object.keys(config.auxiliary_services)
 						: //edit the count if you are adding any new auxilary services
-						  Object.keys(config.auxiliary_services).splice(
-								0,
-								6
-						  ).concat(Object.keys(config.auxiliary_services).splice(
-							8,
-							2
-					  )),
+						  Object.keys(config.auxiliary_services)
+								.splice(0, 6)
+								.concat(Object.keys(config.auxiliary_services).splice(8, 2)),
 			},
 		])
 
@@ -371,7 +363,7 @@ export default {
 			...autoGenerateKeyOptions,
 			...auxiliaryServices,
 			...portalUserCredOptions,
-			...qr_type_options
+			...qr_type_options,
 		}
 		// Setup the registry
 		// print.debug(options);

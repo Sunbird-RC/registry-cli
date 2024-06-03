@@ -31,17 +31,13 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		config.docker_service_name.KEYCLOAK,
 	]
 
-
-
 	// enable VC Issuance
-	if (setupOptions?.enableVCIssuance ) {
+	if (setupOptions?.enableVCIssuance) {
 		if (registryVersion === Object.keys(config.versions)[0]) {
-			enableTheseServices.push(
-				config.docker_service_name.CERTIFICATE_API,
-			)
-		} 
-		setupOptions.signatureEnabled = true 
-	} 
+			enableTheseServices.push(config.docker_service_name.CERTIFICATE_API)
+		}
+		setupOptions.signatureEnabled = true
+	}
 
 	// By default set it for v1.0.0
 	setupOptions['signatureProvideName'] =
@@ -50,16 +46,14 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	setupOptions['oauthResourceURI'] = config.DEFAULT_V1_OAUTH_RESOURCE_URI
 	setupOptions.didEnabled = false
 
-
 	// if registry is v2.0.0
-	if (registryVersion === Object.keys(config.versions)[1] ) {
+	if (registryVersion === Object.keys(config.versions)[1]) {
 		setupOptions['releaseVersion'] = Object.values(config.versions)[1]
 		setupOptions['oauthResourceURI'] = config.DEFAULT_V2_OAUTH_RESOURCE_URI
 		setupOptions['signatureProvideName'] =
 			config.DEFAULT_V2_SIGNATURE_PROVIDER_NAME
-			setupOptions.enableVCIssuance = false
-		if ( setupOptions.signatureEnabled === true) {
-			
+		setupOptions.enableVCIssuance = false
+		if (setupOptions.signatureEnabled === true) {
 			setupOptions.didEnabled = true
 			enableTheseServices.push(
 				config.docker_service_name.CREDENTIAL_SERVICE,
@@ -97,17 +91,21 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		setupOptions.enableVCIssuance = true
 	}
 
-	// Enable Encryption Service 
-	if (setupOptions.auxiliaryServicesToBeEnabled.includes(
-		Object.keys(config.auxiliary_services)[8]
-	)) {
+	// Enable Encryption Service
+	if (
+		setupOptions.auxiliaryServicesToBeEnabled.includes(
+			Object.keys(config.auxiliary_services)[8]
+		)
+	) {
 		setupOptions.encyptionEnabled = true
-	} else setupOptions.encyptionEnabled =false
+	} else setupOptions.encyptionEnabled = false
 
-	// Enable Id-Gen Service 
-	if (setupOptions.auxiliaryServicesToBeEnabled.includes(
-		Object.keys(config.auxiliary_services)[9]
-	)) {
+	// Enable Id-Gen Service
+	if (
+		setupOptions.auxiliaryServicesToBeEnabled.includes(
+			Object.keys(config.auxiliary_services)[9]
+		)
+	) {
 		setupOptions.idGenEnabled = true
 	} else setupOptions.idGenEnabled = false
 
@@ -138,13 +136,13 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		enableTheseServices.push(config.docker_service_name.KAFKA)
 	}
 
-	if(!setupOptions?.qr_type) {
+	if (!setupOptions?.qr_type) {
 		if (registryVersion === Object.keys(config.versions)[1]) {
-			setupOptions.qr_type = qr_types["W3C_VC"]
+			setupOptions.qr_type = qr_types['W3C_VC']
 		} else {
-            setupOptions.qr_type = qr_types["W3C-VC"]
+			setupOptions.qr_type = qr_types['W3C-VC']
 		}
-	} 
+	}
 
 	// enable Auxiliary services
 	if (setupOptions?.auxiliaryServicesToBeEnabled.length > 0) {
@@ -250,7 +248,7 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			target: 'config/schemas/teacher.json',
 			props: setupOptions,
 		})
-		if (registryVersion === Object.keys(config.versions)[1]) { 
+		if (registryVersion === Object.keys(config.versions)[1]) {
 			template.generate({
 				template: 'config/schemas/v2/Insurance.json',
 				target: 'config/schemas/Insurance.json',
@@ -365,7 +363,10 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		message: 'Successfully copied over necessary files',
 	})
 
-	if (registryVersion === Object.keys(config.versions)[1] && setupOptions.signatureEnabled === true) {
+	if (
+		registryVersion === Object.keys(config.versions)[1] &&
+		setupOptions.signatureEnabled === true
+	) {
 		// Start Vault Service
 		// Vault Command
 		let vaultcommand = config.vaultCommand
