@@ -1,5 +1,5 @@
 {
-	"name": "registry-cli",
+	"name": "@sunbird-rc/registry-cli",
 	"version": "2.0.0",
 	"description": "A CLI to setup and manage Sunbird RC registry instances",
 	"author": "Vedant K <https://github.com/gamemaker1>",
