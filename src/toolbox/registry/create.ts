@@ -5,7 +5,7 @@ import path from 'path'
 
 import KeycloakWrapper from './helpers/keycloak'
 import { allUp } from './status'
-import { config } from '../../config/config'
+import { config, qr_types } from '../../config/config'
 var keypair = require('keypair')
 
 import { RegistrySetupOptions, Toolbox } from '../../types'
@@ -22,11 +22,47 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	})
 	const registry = new RegistryWrapper()
 
+	// check for registry version
+	let registryVersion = setupOptions.version
+
 	let enableTheseServices = [
 		config.docker_service_name.DB,
 		config.docker_service_name.REGISTRY,
 		config.docker_service_name.KEYCLOAK,
 	]
+
+	// enable VC Issuance
+	if (setupOptions?.enableVCIssuance) {
+		if (registryVersion === Object.keys(config.versions)[0]) {
+			enableTheseServices.push(config.docker_service_name.CERTIFICATE_API)
+		}
+		setupOptions.signatureEnabled = true
+	}
+
+	// By default set it for v1.0.0
+	setupOptions['signatureProvideName'] =
+		config.DEFAULT_V1_SIGNATURE_PROVIDER_NAME
+	setupOptions['releaseVersion'] = Object.values(config.versions)[0]
+	setupOptions['oauthResourceURI'] = config.DEFAULT_V1_OAUTH_RESOURCE_URI
+	setupOptions.didEnabled = false
+
+	// if registry is v2.0.0
+	if (registryVersion === Object.keys(config.versions)[1]) {
+		setupOptions['releaseVersion'] = Object.values(config.versions)[1]
+		setupOptions['oauthResourceURI'] = config.DEFAULT_V2_OAUTH_RESOURCE_URI
+		setupOptions['signatureProvideName'] =
+			config.DEFAULT_V2_SIGNATURE_PROVIDER_NAME
+		setupOptions.enableVCIssuance = false
+		if (setupOptions.signatureEnabled === true) {
+			setupOptions.didEnabled = true
+			enableTheseServices.push(
+				config.docker_service_name.CREDENTIAL_SERVICE,
+				config.docker_service_name.CREDENTIAL_SCHEMA_SERVICE,
+				config.docker_service_name.IDENTITY_SERVICE
+			)
+			setupOptions.enableVCIssuance = true
+		}
+	}
 
 	setupOptions.fileStorageEnabled = false
 
@@ -55,8 +91,29 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		setupOptions.enableVCIssuance = true
 	}
 
+	// Enable Encryption Service
+	if (
+		setupOptions.auxiliaryServicesToBeEnabled.includes(
+			Object.keys(config.auxiliary_services)[8]
+		)
+	) {
+		setupOptions.encyptionEnabled = true
+	} else setupOptions.encyptionEnabled = false
+
+	// Enable Id-Gen Service
+	if (
+		setupOptions.auxiliaryServicesToBeEnabled.includes(
+			Object.keys(config.auxiliary_services)[9]
+		)
+	) {
+		setupOptions.idGenEnabled = true
+	} else setupOptions.idGenEnabled = false
+
 	//Enable Certificate Signer service
-	if (setupOptions?.signatureEnabled) {
+	if (
+		setupOptions?.signatureEnabled &&
+		registryVersion === Object.keys(config.versions)[0]
+	) {
 		enableTheseServices.push(
 			config.docker_service_name.CERTIFICATE_SIGHNER,
 			config.docker_service_name.FILE_STORAGE
@@ -79,13 +136,12 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		enableTheseServices.push(config.docker_service_name.KAFKA)
 	}
 
-	// enable certificate API service
-	if (setupOptions?.enableVCIssuance) {
-		enableTheseServices.push(
-			config.docker_service_name.CERTIFICATE_API,
-			config.docker_service_name.FILE_STORAGE
-		)
-		setupOptions.fileStorageEnabled = true
+	if (!setupOptions?.qr_type) {
+		if (registryVersion === Object.keys(config.versions)[1]) {
+			setupOptions.qr_type = qr_types['W3C_VC']
+		} else {
+			setupOptions.qr_type = qr_types['W3C-VC']
+		}
 	}
 
 	// enable Auxiliary services
@@ -136,6 +192,18 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		target: '.env-cli',
 		props: setupOptions,
 	})
+	if (registryVersion === Object.keys(config.versions)[1]) {
+		template.generate({
+			template: 'setup_vault.sh',
+			target: 'setup_vault.sh',
+			props: setupOptions,
+		})
+		template.generate({
+			template: 'vault.json',
+			target: 'vault.json',
+			props: setupOptions,
+		})
+	}
 	template.generate({
 		template: 'config.json',
 		target: 'imports/config.json',
@@ -146,26 +214,29 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		target: 'imports/realm-export.json',
 		props: setupOptions,
 	})
-	template.generate({
-		template: 'config/admin-portal/config.json',
-		target: 'imports/admin-portal/config.json',
-		props: setupOptions,
-	})
-	template.generate({
-		template: 'config/admin-portal/nginx.conf',
-		target: 'imports/admin-portal/nginx.conf',
-		props: setupOptions,
-	})
-	template.generate({
-		template: 'config/Issuance-portal/config.json',
-		target: 'imports/Issuance-portal/config.json',
-		props: setupOptions,
-	})
-	template.generate({
-		template: 'config/Issuance-portal/nginx.conf',
-		target: 'imports/Issuance-portal/nginx.conf',
-		props: setupOptions,
-	})
+
+	if (registryVersion === Object.keys(config.versions)[0]) {
+		template.generate({
+			template: 'config/admin-portal/config.json',
+			target: 'imports/admin-portal/config.json',
+			props: setupOptions,
+		})
+		template.generate({
+			template: 'config/admin-portal/nginx.conf',
+			target: 'imports/admin-portal/nginx.conf',
+			props: setupOptions,
+		})
+		template.generate({
+			template: 'config/Issuance-portal/config.json',
+			target: 'imports/Issuance-portal/config.json',
+			props: setupOptions,
+		})
+		template.generate({
+			template: 'config/Issuance-portal/nginx.conf',
+			target: 'imports/Issuance-portal/nginx.conf',
+			props: setupOptions,
+		})
+	}
 	if (setupOptions.pathToEntitySchemas === 'use-example-config') {
 		template.generate({
 			template: 'config/schemas/student.json',
@@ -177,6 +248,18 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			target: 'config/schemas/teacher.json',
 			props: setupOptions,
 		})
+		if (registryVersion === Object.keys(config.versions)[1]) {
+			template.generate({
+				template: 'config/schemas/v2/Insurance.json',
+				target: 'config/schemas/Insurance.json',
+				props: setupOptions,
+			})
+			template.generate({
+				template: 'config/schemas/v2/Official.json',
+				target: 'config/schemas/Official.json',
+				props: setupOptions,
+			})
+		}
 	} else {
 		await filesystem
 			.copyAsync(
@@ -201,8 +284,9 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			Object.keys(config.auxiliary_services)[6]
 		)
 	) {
+		setupOptions['oauthResourceURI'] = config.DEFAULT_V1_OAUTH_RESOURCE_URI
 		template.generate({
-			template: 'config/schemas/Issuer.json',
+			template: 'config/schemas/v1/Issuer.json',
 			target: 'config/schemas/Issuer.json',
 			props: setupOptions,
 		})
@@ -212,7 +296,7 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 			)
 		) {
 			template.generate({
-				template: 'config/schemas/DocumentType.json',
+				template: 'config/schemas/v1/DocumentType.json',
 				target: 'config/schemas/DocumentType.json',
 				props: setupOptions,
 			})
@@ -242,10 +326,13 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 	}
 
 	// Auto generation of keys logic
-	if (setupOptions.autoGenerateKeys) {
+	if (setupOptions?.autoGenerateKeys) {
 		// Specify the path to the config.json file
 		const configFilePath = 'imports/config.json'
-		let deafultTemplateForKeys = require(configFilePath)
+		let deafultTemplateForKeys = await filesystem.read(
+			path.resolve(process.cwd(), configFilePath),
+			'json'
+		)
 		var pair = keypair()
 		deafultTemplateForKeys.issuers.default.publicKey = formatKey(
 			pair.public,
@@ -275,6 +362,32 @@ export default async (toolbox: Toolbox, setupOptions: RegistrySetupOptions) => {
 		operation: 'copying-files',
 		message: 'Successfully copied over necessary files',
 	})
+
+	if (
+		registryVersion === Object.keys(config.versions)[1] &&
+		setupOptions.signatureEnabled === true
+	) {
+		// Start Vault Service
+		// Vault Command
+		let vaultcommand = config.vaultCommand
+		events.emit('registry.create', {
+			status: 'progress',
+			operation: 'setting-up-vault-service',
+			message: 'Setting up vault service',
+		})
+		await system.exec(vaultcommand).catch((error: Error) => {
+			events.emit('registry.create', {
+				status: 'error',
+				operation: 'setting-up-vault-service',
+				message: `An unexpected error occurred while setting up vault: ${error.message}`,
+			})
+		})
+		events.emit('registry.create', {
+			status: 'success',
+			operation: 'setting-up-vault-service',
+			message: 'Successfully setup vault as Keystore manager!',
+		})
+	}
 
 	// Start containers
 	events.emit('registry.create', {

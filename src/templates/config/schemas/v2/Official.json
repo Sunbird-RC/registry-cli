@@ -1,0 +1,62 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"type": "object",
+	"properties": {
+		"Official": {
+			"$ref": "#/definitions/Official"
+		}
+	},
+	"required": ["Official"],
+	"title": "Official",
+	"definitions": {
+		"Official": {
+			"$id": "#/properties/Official",
+			"type": "object",
+			"title": "The Official Schema",
+			"required": ["Name", "Phone", "email", "State", "Category"],
+			"properties": {
+				"Name": {
+					"type": "string"
+				},
+				"Gender": {
+					"type": "string"
+				},
+				"Phone": {
+					"type": "string"
+				},
+				"email": {
+					"type": "string"
+				},
+				"State": {
+					"type": "string"
+				},
+				"Category": {
+					"type": "string"
+				},
+				"Designation": {
+					"type": "string"
+				},
+				"Department": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"_osConfig": {
+		"systemFields": [
+			"osCreatedAt",
+			"osUpdatedAt",
+			"osCreatedBy",
+			"osUpdatedBy"
+		],
+		"roles": ["admin"],
+		"inviteRoles": ["admin"],
+		"ownershipAttributes": [
+			{
+				"email": "/email",
+				"mobile": "/Phone",
+				"userId": "/Phone"
+			}
+		]
+	}
+}

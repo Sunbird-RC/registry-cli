@@ -1,0 +1,208 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"type": "object",
+	"properties": {
+		"Insurance": {
+			"$ref": "#/definitions/Insurance"
+		}
+	},
+	"required": ["Insurance"],
+	"title": "Insurance",
+	"definitions": {
+		"Insurance": {
+			"$id": "#/properties/Insurance",
+			"type": "object",
+			"title": "Insurance",
+			"required": [
+				"policyNumber",
+				"policyName",
+				"policyExpiresOn",
+				"policyIssuedOn",
+				"fullName",
+				"dob"
+			],
+			"properties": {
+				"policyNumber": {
+					"type": "string"
+				},
+				"policyName": {
+					"type": "string"
+				},
+				"policyExpiresOn": {
+					"type": "string",
+					"format": "date-time"
+				},
+				"policyIssuedOn": {
+					"type": "string",
+					"format": "date-time"
+				},
+				"benefits": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"benefit1": {
+								"type": "string",
+								"format": "benefit1"
+							},
+							"benefit2": {
+								"type": "string",
+								"format": "benefit2"
+							}
+						}
+					}
+				},
+				"fullName": {
+					"type": "object",
+					"properties": {
+						"firstName": {
+							"type": "string",
+							"format": "firstName"
+						}
+					}
+				},
+				"dob": {
+					"type": "string",
+					"format": "date"
+				},
+				"gender": {
+					"type": "string",
+					"enum": ["Male", "Female", "Other"]
+				},
+				"mobile": {
+					"type": "string",
+					"title": "Mobile number"
+				},
+				"email": {
+					"type": "string",
+					"title": "Email ID"
+				}
+			}
+		}
+	},
+	"_osConfig": {
+		"credentialTemplate": {
+			"@context": [
+				"https://www.w3.org/2018/credentials/v1",
+				{
+					"@context": {
+						"@version": 1.1,
+						"@protected": true,
+						"id": "@id",
+						"type": "@type",
+						"schema": "https://schema.org/",
+						"InsuranceCredential": {
+							"@id": "did:InsuranceCredential",
+							"@context": {
+								"@version": 1.1,
+								"@protected": true,
+								"id": "@id",
+								"type": "@type",
+								"dob": "schema:birthDate",
+								"email": "schema:email",
+								"gender": "schema:gender",
+								"mobile": "schema:telephone",
+								"benefits": "schema:benefits",
+								"fullName": "schema:name",
+								"policyName": "schema:Text",
+								"policyNumber": "schema:Text"
+							}
+						}
+					}
+				},
+				{
+					"HealthInsuranceCredential": {
+						"@id": "InsuranceCredential"
+					},
+					"LifeInsuranceCredential": {
+						"@id": "HealthInsuranceCredential"
+					}
+				}
+			],
+			"type": ["VerifiableCredential", "LifeInsuranceCredential"],
+			"issuer": "Registry",
+			"issuanceDate": "{{policyIssuedOn}}",
+			"expirationDate": "{{policyExpiresOn}}",
+			"credentialSubject": {
+				"id": "did:{{osid}}",
+				"dob": "{{dob}}",
+				"type": "InsuranceCredential",
+				"email": "{{email}}",
+				"gender": "{{gender}}",
+				"mobile": "{{mobile}}",
+				"benefits": "{{benefits}}",
+				"fullName": "{{fullName}}",
+				"policyName": "{{policyName}}",
+				"policyNumber": "{{policyNumber}}"
+			}
+		},
+		"certificateTemplates": {
+			"first": "minio://Insurance/1-68619c95-3f40-45b8-b6ba-56eba055dc11/email/documents/3165a481-8078-447c-8cc0-f310869cb40d-Insurancetemplate.html"
+		},
+		"osComment": [],
+		"privateFields": [],
+		"systemFields": ["_osSignedData", "_osCredentialId", "_osAttestedData"],
+		"indexFields": [],
+		"uniqueIndexFields": [],
+		"roles": ["Official"],
+		"inviteRoles": ["Official"],
+		"attestationPolicies": [
+			{
+				"name": "cropApprovalPolicy",
+				"attestationProperties": {
+					"policyExpiresOn": "$.policyExpiresOn",
+					"policyNumber": "$.policyNumber",
+					"policyName": "$.policyNumber",
+					"fullName": "$.fullName",
+					"benefits": "$.benefits"
+				},
+				"type": "MANUAL",
+				"attestorPlugin": "did:internal:ClaimPluginActor?entity=Official",
+				"conditions": "(ATTESTOR#$.Gender#.equalsIgnoreCase('male'))",
+				"credentialTemplate": {
+					"@context": [
+						"https://www.w3.org/2018/credentials/v1",
+						{
+							"@context": {
+								"@version": 1.1,
+								"@protected": true,
+								"id": "@id",
+								"type": "@type",
+								"schema": "https://schema.org/",
+								"InsuranceCredential": {
+									"@id": "did:InsuranceCredential",
+									"@context": {
+										"@version": 1.1,
+										"@protected": true,
+										"id": "@id",
+										"type": "@type",
+										"policyExpiresOn": "schema:expires",
+										"policyName": "schema:Text",
+										"policyNumber": "schema:Text"
+									}
+								}
+							}
+						}
+					],
+					"type": ["VerifiableCredential", "InsuranceCredential"],
+					"issuer": "Registry",
+					"expirationDate": "{{policyExpiresOn}}",
+					"credentialSubject": {
+						"id": "did:{{policyName}}:{{policyNumber}}",
+						"type": "InsuranceCredential",
+						"policyName": "{{policyName}}",
+						"policyNumber": "{{policyNumber}}",
+						"policyExpiresOn": "{{policyExpiresOn}}"
+					}
+				}
+			}
+		],
+		"ownershipAttributes": [
+			{
+				"userId": "$.email",
+				"email": "$.email",
+				"mobile": "$.mobile"
+			}
+		]
+	}
+}

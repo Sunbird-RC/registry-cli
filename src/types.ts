@@ -59,6 +59,7 @@ export interface RegistryConfiguration {
 }
 
 export interface RegistrySetupOptions {
+	version: string
 	registryName: string
 	realmName: string
 	keycloakAdminClientId: string
@@ -69,12 +70,16 @@ export interface RegistrySetupOptions {
 	pathToConsentConfiguration: 'use-example-config' | string
 	enableRegistryAuthentication: boolean
 	elasticSearchEnabled: boolean
+	encyptionEnabled: false | boolean
+	idGenEnabled: false | boolean
 	enableVCIssuance: boolean
+	qr_type: string
 	asyncEnabled: boolean
 	managerType: string
 	searchProvideName:
 		| 'dev.sunbirdrc.registry.service.NativeSearchService'
 		| string
+	signatureProvideName: string
 	auxiliaryServicesToBeEnabled: Array<string> | Array<any>
 	autoGenerateKeys: boolean
 	signatureEnabled: boolean
@@ -86,6 +91,9 @@ export interface RegistrySetupOptions {
 	keycloakIssuancePortalUser: string
 	keyckoakIssuancePortalPass: string
 	portalAdminUser: string
+	releaseVersion: string
+	didEnabled: boolean
+	oauthResourceURI: string
 }
 
 export interface RegistryTearDownOptions {
@@ -138,6 +146,10 @@ export interface Auxiliary_Services {
 
 export interface PortalAdminUser {
 	portalAdminUser: String
+}
+
+export interface qr_type {
+	qr_type: String
 }
 
 export interface GitRawJson {

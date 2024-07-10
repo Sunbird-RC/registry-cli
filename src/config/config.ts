@@ -1,6 +1,10 @@
 export interface Config {
 	DEFAULT_ES_PROVIDER_NAME: string
 	DEFAULT_NS_PROVIDER_NAME: string
+	DEFAULT_V1_SIGNATURE_PROVIDER_NAME: string
+	DEFAULT_V2_SIGNATURE_PROVIDER_NAME: string
+	DEFAULT_V2_OAUTH_RESOURCE_URI: string
+	DEFAULT_V1_OAUTH_RESOURCE_URI: string
 	docker_service_name: {
 		ES: string
 		DB: string
@@ -23,16 +27,34 @@ export interface Config {
 		BULK_ISSUANCE: string
 		ADMIN_PORTAL: string
 		ISSUANCE_PORTAL: string
+		// credentialling services
+		CREDENTIAL_SERVICE: string
+		CREDENTIAL_SCHEMA_SERVICE: string
+		IDENTITY_SERVICE: string
+		VAULT: string
 	}
 	auxiliary_services: AuxiliaryServices
 	definationMangerTypes: DefinationsManager
+	versions: VersionManager
 	maximumRetries: number
+	vaultCommand: string
+	qr_types: QR_TYPES
+}
+
+interface QR_TYPES {
+	[name: string]: string
+}
+interface SignatureProvider {
+	[name: string]: string
 }
 
 interface AuxiliaryServices {
 	[serviceName: string]: string
 }
 
+interface VersionManager {
+	[verison: string]: string
+}
 interface DefinationsManager {
 	[name: string]: string
 }
@@ -46,6 +68,14 @@ const auxiliary_services: AuxiliaryServices = {
 	'Digilocker Certificate Service': 'digilocker-certificate-api',
 	'Admin Portal': 'admin-portal',
 	'Issuance Portal': 'issuance-portal',
+	'Encryption Service': 'encryption-service',
+	'Unique ID-Generation Service': 'id-gen-service',
+}
+
+// change the verions of the registries based on the release
+const versionsAvailable: VersionManager = {
+	'v1.0.0': 'v1.0.1',
+	'v2.0.0': 'v2.0.1',
 }
 
 const definationsManagers = {
@@ -53,11 +83,23 @@ const definationsManagers = {
 	'Distributed Definitions Manager': 'DistributedDefinitionsManager',
 }
 
+export const qr_types: QR_TYPES = {
+	'W3C-VC': 'W3C-VC',
+	W3C_VC: 'W3C_VC',
+	URL: 'URL',
+}
+
 export let config: Config = {
 	DEFAULT_ES_PROVIDER_NAME:
 		'dev.sunbirdrc.registry.service.ElasticSearchService',
 	DEFAULT_NS_PROVIDER_NAME:
 		'dev.sunbirdrc.registry.service.NativeSearchService',
+	DEFAULT_V1_SIGNATURE_PROVIDER_NAME:
+		'dev.sunbirdrc.registry.service.impl.SignatureV1ServiceImpl',
+	DEFAULT_V2_SIGNATURE_PROVIDER_NAME:
+		'dev.sunbirdrc.registry.service.impl.SignatureV2ServiceImpl',
+	DEFAULT_V2_OAUTH_RESOURCE_URI: 'http://keycloak:8080/auth/realms/sunbird-rc',
+	DEFAULT_V1_OAUTH_RESOURCE_URI: 'http://keycloak:8080/auth/realms/sunbird-rc',
 	docker_service_name: {
 		ES: 'es',
 		DB: 'db',
@@ -80,8 +122,15 @@ export let config: Config = {
 		BULK_ISSUANCE: 'bulk_issuance',
 		ADMIN_PORTAL: 'admin-portal',
 		ISSUANCE_PORTAL: 'issuance-portal',
+		CREDENTIAL_SERVICE: 'credential',
+		CREDENTIAL_SCHEMA_SERVICE: 'credential-schema',
+		IDENTITY_SERVICE: 'identity',
+		VAULT: 'vault',
 	},
 	auxiliary_services: auxiliary_services,
 	definationMangerTypes: definationsManagers,
+	versions: versionsAvailable,
 	maximumRetries: 100,
+	vaultCommand: 'bash setup_vault.sh docker-compose.yml vault',
+	qr_types: qr_types,
 }
