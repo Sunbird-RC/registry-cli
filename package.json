@@ -43,7 +43,7 @@
 	"scripts": {
 		"clean": "del out",
 		"copy-templates": "cp -r src/templates out/src",
-		"compile": "pnpm clean && tsc -p .",
+		"compile": "tsc -p .",
 		"watch": "tsc -w -p .",
 		"build": "pnpm compile && pnpm copy-templates",
 		"lint": "prettier -w . --ignore-path .gitignore",
